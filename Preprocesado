@@ -1,0 +1,5 @@
+#Plantilla para el Pre Procesado de Datos
+
+#importar el dataset
+dataset = read.csv('Data.csv')
+

@@ -1,0 +1,73 @@
+#Regresion lineal multiple
+
+#importar el dataset
+dataset = read.csv('50_Startups.csv')
+#dataset = dataset[, 2:3]
+
+# Codificar las variables categoricas
+dataset$State = factor(dataset$State, 
+                         levels = c("California", "Florida", "New York"),
+                         labels = c(1,2,3))
+
+
+#dividir datos en conjunto de entrenamiento y conjunto de test
+library(caTools)
+set.seed(123)
+split = sample.split(dataset$Profit, SplitRatio = 0.8)
+training_set = subset(dataset, split == TRUE)
+testing_set = subset(dataset, split == FALSE)
+
+# #Escalado de Valores
+# training_set[,2:3] = scale(training_set[,2:3])
+# testing_set[,2:3] = scale(testing_set[,2:3])
+
+# Ajustar el modelo de regresion lineal multiple con el conjunto de entrenamiento
+regression = lm(formula = Profit ~ .,
+                data = training_set)
+
+#Predecir los resultados con el conjunto de testing
+y_pred = predict(regression , newdata = testing_set)
+
+#construir un modelo optimo con la eliminacion hacia atras
+SL = 0.05
+regression = lm(formula = Profit ~ R.D.Spend + Administration + Marketing.Spend + State,
+                data = dataset)
+
+summary(regression)
+
+
+regression = lm(formula = Profit ~ R.D.Spend + Administration + Marketing.Spend ,
+                data = dataset)
+
+summary(regression)
+
+
+regression = lm(formula = Profit ~ R.D.Spend + Marketing.Spend ,
+                data = dataset)
+
+summary(regression)
+
+
+regression = lm(formula = Profit ~ R.D.Spend ,
+                data = dataset)
+
+summary(regression)
+
+#Regresion automatica
+backwardElimination <- function(x, sl) {
+  numVars = length(x)
+  for (i in c(1:numVars)){
+    regressor = lm(formula = Profit ~ ., data = x)
+    maxVar = max(coef(summary(regressor))[c(2:numVars), "Pr(>|t|)"])
+    if (maxVar > sl){
+      j = which(coef(summary(regressor))[c(2:numVars), "Pr(>|t|)"] == maxVar)
+      x = x[, -j]
+    }
+    numVars = numVars - 1
+  }
+  return(summary(regressor))
+}
+
+SL = 0.05
+dataset = dataset[, c(1,2,3,4,5)]
+backwardElimination(training_set, SL)

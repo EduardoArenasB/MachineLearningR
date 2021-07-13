@@ -1,0 +1,43 @@
+#Arbol de decision para regresión
+
+#importar el dataset
+dataset = read.csv('Position_Salaries.csv')
+dataset = dataset[, 2:3]
+
+#dividir datos en conjunto de entrenamiento y conjunto de test
+# library(caTools)
+# set.seed(123)
+# split = sample.split(dataset$Purchased, SplitRatio = 0.8)
+# training_set = subset(dataset, split == TRUE)
+# testing_set = subset(dataset, split == FALSE)
+
+# #Escalado de Valores
+# training_set[,2:3] = scale(training_set[,2:3])
+# testing_set[,2:3] = scale(testing_set[,2:3])
+
+#Ajustar Modelo de Regresion con el Conjunto de datos
+#library(rpart)
+regression = rpart(formula = Salary ~ .,
+                   data = dataset,
+                   control =rpart.control(minsplit = 1))
+
+
+#crear nuestra variable de regresion
+
+
+#Prediccion de nuevos resultados con Regresion por arbol de decision
+
+y_pred = predict(regression, newdata = data.frame(Level = 6.5))
+
+#visualizacion del modelo 
+# install.packages("ggplot2")
+x_grid = seq(min(dataset$Level), max(dataset$Level), 0.1)
+ggplot() +
+  geom_point(aes(x = dataset$Level, y = dataset$Salary),
+             color = "red") +
+  geom_line(aes(x = x_grid, y = predict(regression,
+                                        newdata = data.frame(Level = x_grid))),
+            color = "blue") +
+  ggtitle("Prediccion (Arbol de decision)") + 
+  xlab("Nivel del empleado") +
+  ylab("Sueldo en $")
